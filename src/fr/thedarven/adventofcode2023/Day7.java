@@ -5,7 +5,7 @@ import java.util.*;
 public class Day7 {
 
     public static void main(String[] args) {
-        part1();
+        part2();
     }
 
     public static void part1() {
@@ -14,7 +14,27 @@ public class Day7 {
 
         List<Hand> hands = new ArrayList<>();
         while (!(line = sc.nextLine()).isBlank()) {
-            hands.add(new Hand(line.split("\\s+")[0], Integer.parseInt(line.split("\\s+")[1])));
+            String cards = line.split("\\s+")[0];
+            Map<Character, Integer> elements = new HashMap<>();
+            for (char c: cards.toCharArray()) {
+                if (elements.containsKey(c)) {
+                    elements.put(c, elements.get(c) + 1);
+                } else {
+                    elements.put(c, 1);
+                }
+            }
+            int power;
+            if (elements.size() == 1) {
+                power = 1;
+            } else if (elements.size() == 2) {
+                power = elements.values().stream().anyMatch(e -> e == 4) ? 2 : 3;
+            } else if (elements.size() == 3) {
+                power = elements.values().stream().anyMatch(e -> e == 3) ? 4 : 5;
+            } else {
+                power = elements.size() + 2;
+            }
+
+            hands.add(new Hand(cards, Integer.parseInt(line.split("\\s+")[1]), power));
         }
         hands.sort((o1, o2) -> {
             if (o2.power < o1.power) {
@@ -49,7 +69,34 @@ public class Day7 {
 
         List<Hand> hands = new ArrayList<>();
         while (!(line = sc.nextLine()).isBlank()) {
-            hands.add(new Hand(line.split("\\s+")[0], Integer.parseInt(line.split("\\s+")[1])));
+            String cards = line.split("\\s+")[0];
+            Map<Character, Integer> elements = new HashMap<>();
+            int nbJoker = 0;
+            for (char c: cards.toCharArray()) {
+                if (c == 'J') {
+                    nbJoker++;
+                    continue;
+                }
+
+                if (elements.containsKey(c)) {
+                    elements.put(c, elements.get(c) + 1);
+                } else {
+                    elements.put(c, 1);
+                }
+            }
+            int power;
+            int finalNbJoker = nbJoker;
+            if (elements.size() <= 1) {
+                power = 1;
+            } else if (elements.size() == 2) {
+                power = elements.values().stream().anyMatch(e -> e == 4 - finalNbJoker) ? 2 : 3;
+            } else if (elements.size() == 3) {
+                power = elements.values().stream().anyMatch(e -> e == 3 - finalNbJoker) ? 4 : 5;
+            } else {
+                power = elements.size() + 2;
+            }
+
+            hands.add(new Hand(cards, Integer.parseInt(line.split("\\s+")[1]), power));
         }
         hands.sort((o1, o2) -> {
             if (o2.power < o1.power) {
@@ -76,15 +123,6 @@ public class Day7 {
             result += (hands.size() - i) * (long) hands.get(i).bid;
         }
         System.out.println(result);
-/**
-AAAAA 10
-AA2AA 20
-23332 30
-TTT98 40
-23432 50
-A23A4 60
-23456 70
- */
     }
 }
 
@@ -93,26 +131,9 @@ class Hand {
     int bid;
     int power;
 
-    public Hand(String cards, int bid) {
+    public Hand(String cards, int bid, int power) {
         this.cards = cards;
         this.bid = bid;
-
-        Map<Character, Integer> elements = new HashMap<>();
-        for (char c: cards.toCharArray()) {
-            if (elements.containsKey(c)) {
-                elements.put(c, elements.get(c) + 1);
-            } else {
-                elements.put(c, 1);
-            }
-        }
-        if (elements.size() == 1) {
-            this.power = 1;
-        } else if (elements.size() == 2) {
-            this.power = elements.values().stream().anyMatch(e -> e == 4) ? 2 : 3;
-        } else if (elements.size() == 3) {
-            this.power = elements.values().stream().anyMatch(e -> e == 3) ? 4 : 5;
-        } else {
-            this.power = elements.size() + 2;
-        }
+        this.power = power;
     }
 }
