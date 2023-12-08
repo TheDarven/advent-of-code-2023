@@ -52,19 +52,33 @@ public class Day8 {
             }
         }
 
-        int nbSequences = 0;
-        while (!currentPaths.stream().allMatch(path -> path.endsWith("Z"))) {
-            nbSequences++;
-            for (char instruction: instructions) {
-                Set<String> nextPaths = new HashSet<>();
-
-                for (String currentPath: currentPaths) {
-                    nextPaths.add(instruction == 'L' ? paths.get(currentPath)[0] : paths.get(currentPath)[1]);
-                }
-                currentPaths = nextPaths;
+        List<Integer> cycleSize = new ArrayList<>();
+        for (String currentPath: currentPaths) {
+            int i = 0;
+            String current = currentPath;
+            while (!current.endsWith("Z")) {
+                current = paths.get(current)[instructions[i++ % instructions.length] == 'L' ? 0 : 1];
             }
+            cycleSize.add(i);
         }
 
-        System.out.println(nbSequences * instructions.length);
+        long result = cycleSize.get(0);
+        for (int i = 1; i < cycleSize.size(); i++) {
+            result = lcm(result, cycleSize.get(i));
+        }
+        System.out.println(result);
+    }
+
+    private static long gcd(long a, long b) {
+        while (b > 0) {
+            long temp = b;
+            b = a % b;
+            a = temp;
+        }
+        return a;
+    }
+
+    private static long lcm(long a, long b) {
+        return a * (b / gcd(a, b));
     }
 }
